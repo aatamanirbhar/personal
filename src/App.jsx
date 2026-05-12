@@ -1,25 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "./lib/supabase";
+import { heroSlides } from "./data/heroSlides";
 
 const HERO_INTERVAL = 7000;
 
-const getBrowser = () => {
-  const ua = navigator.userAgent;
-
-  if (ua.includes("Chrome")) return "Chrome";
-  if (ua.includes("Firefox")) return "Firefox";
-  if (ua.includes("Safari")) return "Safari";
-
-  return "Unknown";
-};
-
-const getDeviceType = () => {
-  return window.innerWidth < 768 ? "Mobile" : "Desktop";
-};
-
 export default function App() {
-  const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -31,6 +16,7 @@ export default function App() {
         "https://images.unsplash.com/photo-1526947425960-945c6e72858f?q=80&w=1200&auto=format&fit=crop",
       description: "Premium herbal skincare ecommerce experience.",
     },
+
     {
       name: "Radha Rani Store",
       url: "https://radharanistore.vercel.app",
@@ -45,21 +31,22 @@ export default function App() {
       title: "Starter",
       price: "₹4,999",
       features: [
-        "Hosted on Vercel",
+        "Hosted On Vercel",
         "Free Vercel URL",
         "Responsive Design",
         "Fast Loading",
         "Modern UI",
       ],
     },
+
     {
       title: "Pay As You Go",
       price: "₹4,999 + Services",
       features: [
         "Custom Domain",
         "Premium Hosting",
-        "Business Email",
         "SEO Setup",
+        "Business Email",
         "Analytics",
         "Extra Integrations",
       ],
@@ -67,8 +54,6 @@ export default function App() {
   ];
 
   useEffect(() => {
-    fetchSlides();
-
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -80,80 +65,44 @@ export default function App() {
     };
   }, []);
 
-  const fetchSlides = async () => {
-    const { data, error } = await supabase
-      .from("hero_slides")
-      .select("*")
-      .order("created_at", { ascending: true });
-
-    if (!error && data) {
-      setSlides(data);
-    }
-  };
-
   useEffect(() => {
-    if (!slides.length) return;
-
     const interval = setInterval(() => {
       setCurrent((prev) =>
-        prev === slides.length - 1 ? 0 : prev + 1
+        prev === heroSlides.length - 1 ? 0 : prev + 1
       );
     }, HERO_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [slides]);
-
-  useEffect(() => {
-    trackVisitor();
   }, []);
 
-  const trackVisitor = async () => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-
-      await supabase.from("visitors").insert({
-        ip: data.ip,
-        country: data.country_name,
-        city: data.city,
-        browser: getBrowser(),
-        device: getDeviceType(),
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const activeSlide = slides[current];
+  const activeSlide = heroSlides[current];
 
   return (
     <div className="bg-black text-white overflow-hidden">
       {/* HERO */}
       <section className="relative h-screen overflow-hidden">
         <AnimatePresence mode="wait">
-          {activeSlide && (
-            <motion.div
-              key={activeSlide.id}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5 }}
-              className="absolute inset-0"
-            >
-              <img
-                src={
-                  isMobile
-                    ? activeSlide.mobile_image
-                    : activeSlide.desktop_image
-                }
-                className="w-full h-full object-cover"
-              />
+          <motion.div
+            key={activeSlide.id}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5 }}
+            className="absolute inset-0"
+          >
+            <img
+              src={
+                isMobile
+                  ? activeSlide.mobile_image
+                  : activeSlide.desktop_image
+              }
+              className="w-full h-full object-cover"
+            />
 
-              <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-black/60" />
 
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
-            </motion.div>
-          )}
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
+          </motion.div>
         </AnimatePresence>
 
         <div className="relative z-10 h-full flex items-center justify-center px-6">
@@ -181,24 +130,23 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               className="text-lg md:text-2xl text-gray-200 italic mb-10 max-w-3xl mx-auto"
             >
-              {activeSlide?.quote}
+              {activeSlide.quote}
             </motion.p>
 
-            <div className="flex flex-col md:flex-row gap-5 justify-center">
-              <button className="px-8 py-4 bg-white text-black rounded-full font-semibold hover:scale-105 transition-all duration-300">
-                Start A Project
-              </button>
-
-              <button className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300">
+            <div className="flex justify-center">
+              <a
+                href="#projects"
+                className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300"
+              >
                 View Work
-              </button>
+              </a>
             </div>
           </div>
         </div>
 
         {/* PROGRESS BARS */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-          {slides.map((_, i) => (
+          {heroSlides.map((_, i) => (
             <div
               key={i}
               className="w-20 h-[3px] bg-white/20 overflow-hidden rounded-full"
@@ -258,7 +206,10 @@ export default function App() {
       </section>
 
       {/* PROJECTS */}
-      <section className="py-32 px-6 bg-white/[0.02]">
+      <section
+        id="projects"
+        className="py-32 px-6 bg-white/[0.02]"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="mb-20">
             <p className="uppercase tracking-[0.3em] text-sm text-gray-400 mb-4">
@@ -334,7 +285,7 @@ export default function App() {
                 {plan.price}
               </div>
 
-              <div className="space-y-4 mb-10">
+              <div className="space-y-4">
                 {plan.features.map((feature) => (
                   <div
                     key={feature}
@@ -346,10 +297,6 @@ export default function App() {
                   </div>
                 ))}
               </div>
-
-              <button className="w-full py-4 rounded-full bg-white text-black font-semibold hover:scale-[1.02] transition-all duration-300">
-                Get Started
-              </button>
             </div>
           ))}
         </div>
@@ -373,14 +320,14 @@ export default function App() {
             premium brand experiences.
           </p>
 
-          <div className="flex flex-col md:flex-row justify-center gap-5">
-            <button className="px-10 py-5 bg-white text-black rounded-full font-semibold hover:scale-105 transition-all duration-300">
-              WhatsApp
-            </button>
-
-            <button className="px-10 py-5 border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300">
-              Instagram
-            </button>
+          <div className="flex justify-center">
+            <a
+              href="https://wa.me/918949720403"
+              target="_blank"
+              className="px-10 py-5 bg-white text-black rounded-full font-semibold hover:scale-105 transition-all duration-300"
+            >
+              WhatsApp: 8949720403
+            </a>
           </div>
         </div>
       </section>
