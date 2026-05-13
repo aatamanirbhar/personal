@@ -1,16 +1,7 @@
-// ROUTES:
-//
-// <Route path="/admin" element={<AdminDashboard />} />
-// <Route path="/admin/add-slide" element={<AddHeroSlide />} />
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
-// =========================
-// ADMIN DASHBOARD
-// =========================
-
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-
-export function AdminDashboard() {
+export default function AdminDashboard() {
   const [slides, setSlides] = useState([]);
   const [visitors, setVisitors] = useState([]);
 
@@ -21,27 +12,34 @@ export function AdminDashboard() {
 
   const fetchSlides = async () => {
     const { data } = await supabase
-      .from('hero_slides')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("hero_slides")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (data) setSlides(data);
   };
 
   const fetchVisitors = async () => {
     const { data } = await supabase
-      .from('visitors')
-      .select('*')
-      .order('visited_at', { ascending: false });
+      .from("visitors")
+      .select("*")
+      .order("visited_at", { ascending: false });
 
     if (data) setVisitors(data);
   };
 
   const deleteSlide = async (slide) => {
+    const desktopPath = slide.desktop_image.split("/hero-images/")[1];
+    const mobilePath = slide.mobile_image.split("/hero-images/")[1];
+
+    await supabase.storage
+      .from("hero-images")
+      .remove([desktopPath, mobilePath]);
+
     await supabase
-      .from('hero_slides')
+      .from("hero_slides")
       .delete()
-      .eq('id', slide.id);
+      .eq("id", slide.id);
 
     fetchSlides();
   };
@@ -50,7 +48,9 @@ export function AdminDashboard() {
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-12">
-          <h1 className="text-5xl font-black">Admin Dashboard</h1>
+          <h1 className="text-5xl font-black">
+            Admin Dashboard
+          </h1>
 
           <a
             href="/admin/add-slide"
@@ -64,25 +64,36 @@ export function AdminDashboard() {
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-8">
             <p className="text-gray-400 mb-3">Hero Slides</p>
-            <h2 className="text-5xl font-black">{slides.length}</h2>
+
+            <h2 className="text-5xl font-black">
+              {slides.length}
+            </h2>
           </div>
 
           <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-8">
             <p className="text-gray-400 mb-3">Visitors</p>
-            <h2 className="text-5xl font-black">{visitors.length}</h2>
+
+            <h2 className="text-5xl font-black">
+              {visitors.length}
+            </h2>
           </div>
 
           <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-8">
-            <p className="text-gray-400 mb-3">Latest Visitor</p>
+            <p className="text-gray-400 mb-3">
+              Latest Visitor
+            </p>
+
             <h2 className="text-2xl font-bold">
-              {visitors[0]?.country || 'No Data'}
+              {visitors[0]?.country || "No Data"}
             </h2>
           </div>
         </div>
 
         {/* HERO SLIDES */}
         <div className="mb-20">
-          <h2 className="text-4xl font-black mb-8">Hero Slides</h2>
+          <h2 className="text-4xl font-black mb-8">
+            Hero Slides
+          </h2>
 
           <div className="grid md:grid-cols-2 gap-8">
             {slides.map((slide) => (
@@ -118,7 +129,9 @@ export function AdminDashboard() {
 
         {/* VISITORS */}
         <div>
-          <h2 className="text-4xl font-black mb-8">Visitors</h2>
+          <h2 className="text-4xl font-black mb-8">
+            Visitors
+          </h2>
 
           <div className="overflow-x-auto rounded-3xl border border-white/10">
             <table className="w-full">
