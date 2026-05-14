@@ -60,7 +60,7 @@ export default function App() {
         "Premium Hosting",
         
         "Authentication Layer",
-        "Analytics",
+        
         "Extra Integrations",
       ],
     },
@@ -287,12 +287,18 @@ console.log(ipData);
                 </motion.p>
 
                 <div className="flex justify-center">
-                  <a
-                    href="#projects"
-                    className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300"
-                  >
-                    View Work
-                  </a>
+              <button
+  onClick={() => {
+    document
+      .getElementById("projects")
+      ?.scrollIntoView({
+        behavior: "smooth",
+      });
+  }}
+  className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300"
+>
+  View Work
+</button>
                 </div>
               </div>
             </div>
