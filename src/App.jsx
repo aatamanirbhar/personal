@@ -33,6 +33,30 @@ export default function App() {
       description:
         "Elegant ecommerce storefront.",
     },
+
+ {
+      name: "Omenly",
+      url: "https://omenly.tech",
+
+      image:
+        "/images/omenly.png",
+
+      description:
+        "Decision maker helper",
+    },
+
+
+     {
+      name: "Gamenights",
+      url: "https://gamenights.live",
+
+      image:
+        "/images/gamenights.png",
+
+      description:
+        "Trvia style game for movie nerds",
+    }
+
   ];
 
   const plans = [
